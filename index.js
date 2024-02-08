@@ -10,16 +10,35 @@ const logger = require("./logs/logger");
 // setup
 const app = express();
 const PORT = process.env.PORT || 5000;
+
+// middlewares
 app.use(logger);
+app.use(express.urlencoded({ extended: false }));
+app.use(express.json());
+app.use(
+  session({
+    secret: "key",
+    saveUninitialized: true,
+    resave: false,
+  })
+);
+
+app.use((req, res, next) => {
+  res.locals.message = req.session.message;
+  delete req.session.message;
+  next();
+});
 
 // database
 mongoose.connect(process.env.DB_URI);
-const db = mongoose.connection;
-db.on("error", (err) => {
+mongoose.connection.on("error", (err) => {
   console.log(`db err: ${err}`);
 });
-db.once("open", () => {
+mongoose.connection.once("open", () => {
   console.log(`Database connected successfully!`);
+});
+mongoose.connection.on("disconnected", () => {
+  console.log(`Database was disconnected!`);
 });
 
 // routes
