@@ -10,9 +10,17 @@ const logger = require("./logs/logger");
 // setup
 const app = express();
 const PORT = process.env.PORT || 5000;
-
-// middleware
 app.use(logger);
+
+// database
+mongoose.connect(process.env.DB_URI);
+const db = mongoose.connection;
+db.on("error", (err) => {
+  console.log(`db err: ${err}`);
+});
+db.once("open", () => {
+  console.log(`Database connected successfully!`);
+});
 
 // routes
 app.get("/", (req, res) => {
