@@ -1,4 +1,4 @@
-// imports
+// Imports
 require("dotenv").config();
 const path = require("path");
 const fs = require("fs");
@@ -6,12 +6,13 @@ const express = require("express");
 const mongoose = require("mongoose");
 const session = require("express-session");
 const logger = require("./logs/logger");
+const router = require("./routes/router");
 
-// setup
+// Setup
 const app = express();
 const PORT = process.env.PORT || 5000;
 
-// middlewares
+// Middlewares
 app.use(logger);
 app.use(express.urlencoded({ extended: false }));
 app.use(express.json());
@@ -29,7 +30,12 @@ app.use((req, res, next) => {
   next();
 });
 
-// database
+app.use("", router);
+
+// Template engine
+app.set("view engine", "ejs");
+
+// Database
 mongoose.connect(process.env.DB_URI);
 mongoose.connection.on("error", (err) => {
   console.log(`db err: ${err}`);
@@ -41,12 +47,12 @@ mongoose.connection.on("disconnected", () => {
   console.log(`Database was disconnected!`);
 });
 
-// routes
+// Routes
 app.get("/", (req, res) => {
   res.send("Hello World");
 });
 
-// console
+// Console
 app.listen(PORT, () => {
-  console.log(`Server started at PORT: ${PORT} successfully!`);
+  console.log(`Server started at: http://localhost:${PORT} successfully!`);
 });
